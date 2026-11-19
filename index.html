@@ -90,8 +90,8 @@ h2{font:600 22px/1.1 Unbounded,Rubik,sans-serif;margin:0 0 16px}
 label{display:block;margin-top:22px;font-weight:500}
 input{font:500 16px Rubik,sans-serif;width:7em;min-height:44px;padding:8px 12px;border:1px solid var(--line);border-radius:10px;background:light-dark(#fff,#21160a);color:var(--ink);margin-top:6px}
 .empty{color:var(--muted);margin:0}
-.toast{white-space:nowrap;position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translate(-50%,160%);background:var(--ink);color:var(--panel);border-radius:999px;padding:8px 8px 8px 20px;display:flex;gap:12px;align-items:center;font-weight:500;transition:transform .25s;max-width:calc(100vw - 32px);z-index:5}
-.toast.on{transform:translate(-50%,0)}
+.toast{white-space:nowrap;position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translate(-50%,calc(100% + 40px + env(safe-area-inset-bottom)));visibility:hidden;background:var(--ink);color:var(--panel);border-radius:999px;padding:8px 8px 8px 20px;display:flex;gap:12px;align-items:center;font-weight:500;transition:transform .25s,visibility 0s .25s;max-width:calc(100vw - 32px);z-index:5}
+.toast.on{transform:translate(-50%,0);visibility:visible;transition:transform .25s,visibility 0s}
 .toast button{background:var(--gold);color:#2a1604;border:0;border-radius:999px;min-height:40px;padding:0 16px;font:700 15px Rubik,sans-serif;cursor:pointer;flex:none}
 @media(max-width:700px){.cols{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:420px){.days{gap:4px}.day{border-radius:10px;padding:8px 2px}.dots i{width:16px;height:7px}.ds{font-size:12px}.wk{grid-template-columns:minmax(0,7.5em) minmax(0,1fr) auto}.mugw{inset:0 17%}.side{font-size:13px;width:21%}.side b{font-size:22px}.stamp{font-size:15px}}
