@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Пивная копилка</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&family=Unbounded:wght@600;800&display=swap" rel="stylesheet"><style id="css">
+/* VOICE: тёплый, подбадривающий, без морали — каждая монетка маленькая победа
+   IDEA: пивная кружка, которая наполняется не пивом, а монетками по 3 €
+   PICTURE: стеклянная кружка с монетками; карточка «Хочется пива?», которую смахиваешь
+   COLOUR and TYPE: янтарь пива + тёмный солод + золото монет; Unbounded для цифр, Rubik для текста
+   LAYOUT: кружка и итог недели, под ним карточка-свайп; ниже дни недели и прошлые недели */
+:root{color-scheme:light dark;--bg:light-dark(#ffc23d,#1d1307);--ink:light-dark(#2a1604,#ffe7b3);--muted:light-dark(#6e4b17,#c8a467);--panel:light-dark(#fff7e2,#2a1c0c);--line:light-dark(#ecd9ad,#3d2a13);--glass:light-dark(rgba(255,255,255,.5),rgba(255,231,179,.07));--gold:#f6bd2a;--card:light-dark(#fffaf0,#2c1e0d)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--panel);color:var(--ink);font:16px/1.55 Rubik,system-ui,sans-serif;overflow-x:clip}
+.band{padding:clamp(24px,4vw,56px) max(5vw,16px)}
+.wrap{max-width:1040px;margin:0 auto}
+.top{background:var(--bg)}
+h1{font:800 clamp(24px,4vw,34px)/1.05 Unbounded,Rubik,sans-serif;margin:0 0 4px;text-wrap:balance}
+h2{font:600 22px/1.1 Unbounded,Rubik,sans-serif;margin:0 0 16px}
+.sub{color:var(--muted);margin:0}
+.hero{max-width:620px;margin:18px auto 0;text-align:center}
+.big{font:800 clamp(56px,10vw,96px)/1 Unbounded,Rubik,sans-serif;margin:4px 0 4px;letter-spacing:-.02em;white-space:nowrap}
+.cnt{font-size:17px;margin:0}
+.stage{--l:0;--r:0;position:relative;height:clamp(280px,46vw,400px);margin-top:14px;touch-action:pan-y;user-select:none;-webkit-user-select:none;cursor:grab;outline:none;border-radius:28px}
+.stage:active{cursor:grabbing}
+.stage:focus-visible{box-shadow:0 0 0 3px var(--ink)}
+.mugw{position:absolute;inset:0 18%;transform-origin:50% 92%}
+.mugw>svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.side{position:absolute;top:50%;transform:translateY(-50%);width:17%;font-weight:700;font-size:15px;line-height:1.25;color:var(--muted);pointer-events:none}
+.side b{display:block;font-size:26px;line-height:1;margin-bottom:4px;color:var(--ink)}
+.side.s{left:0;text-align:left;opacity:calc(.75 + var(--l)*.25)}
+.side.d{right:0;text-align:right;opacity:calc(.75 + var(--r)*.25)}
+.stamp{position:absolute;top:8%;padding:6px 14px;border-radius:12px;font:800 18px Unbounded,Rubik,sans-serif;border:3px solid;pointer-events:none;white-space:nowrap;z-index:2}
+.stamp.s{left:2%;color:#8a5a00;border-color:#d99a12;background:#ffe9a6;opacity:var(--l);transform:rotate(-8deg) scale(calc(.8 + var(--l)*.2))}
+.stamp.d{right:2%;color:var(--ink);border-color:currentColor;background:var(--panel);opacity:var(--r);transform:rotate(8deg) scale(calc(.8 + var(--r)*.2))}
+.btns{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;margin-top:18px}
+.btn{min-height:52px;border-radius:999px;border:2px solid var(--ink);font:700 16px Rubik,sans-serif;cursor:pointer;padding:0 14px}
+.btn.s{background:var(--ink);color:light-dark(#ffd76a,#2a1604)}
+.btn.d{background:transparent;color:var(--ink)}
+.btn:focus-visible,.lnk:focus-visible,input:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.lnk{background:none;border:0;color:var(--ink);font:500 15px Rubik,sans-serif;text-decoration:underline;text-underline-offset:3px;cursor:pointer;min-height:44px;padding:0;margin-top:6px}
+.lnk:disabled{opacity:.4;cursor:default}
+.note{font-size:14px;color:var(--muted);margin:6px 0 0}
+.days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
+.day{background:light-dark(#fff,#21160a);border:1px solid var(--line);border-radius:14px;padding:10px 4px 12px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px;min-height:160px}
+.day.today{border:2px solid var(--ink)}
+.day.fut{opacity:.45}
+.dl{font-weight:700}.dd{font-size:13px;color:var(--muted)}
+.dots{flex:1;display:flex;flex-direction:column-reverse;align-items:center;gap:2px}
+.dots i{width:22px;height:9px;border-radius:50%;background:var(--gold);box-shadow:0 2px 0 #b9780a}
+.dots s,.beers s{text-decoration:none;font-size:13px;color:var(--muted)}
+.beers{display:flex;flex-wrap:wrap;justify-content:center;gap:3px;min-height:14px}
+.beers u{width:9px;height:13px;border-radius:2px 2px 3px 3px;background:#e08a12;border-top:4px solid light-dark(#fff,#ffe7b3);box-shadow:0 0 0 1px light-dark(#b0680a,#e08a12)}
+.ds{font:600 14px Unbounded,Rubik,sans-serif;white-space:nowrap}
+.legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;font-size:14px;color:var(--muted);align-items:center}
+.legend i,.legend u{display:inline-block;vertical-align:middle;margin-right:6px}
+.legend i{width:18px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 2px 0 #b9780a}
+.legend u{width:9px;height:13px;border-radius:2px;background:#e08a12;border-top:4px solid light-dark(#fff,#ffe7b3)}
+.cols{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:clamp(20px,4vw,48px);margin-top:40px}
+.wk{display:grid;grid-template-columns:minmax(0,9.5em) minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.wk small{display:block;color:var(--muted);font-size:13px}
+.bar{height:12px;border-radius:6px;background:var(--line);overflow:hidden}.bar i{display:block;height:100%;background:var(--gold);border-radius:6px}
+.wk>span:last-child{font-weight:700;text-align:right;white-space:nowrap}
+.stat{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.stat b{font:600 18px Unbounded,Rubik,sans-serif;white-space:nowrap}
+label{display:block;margin-top:22px;font-weight:500}
+input{font:500 16px Rubik,sans-serif;width:7em;min-height:44px;padding:8px 12px;border:1px solid var(--line);border-radius:10px;background:light-dark(#fff,#21160a);color:var(--ink);margin-top:6px}
+.empty{color:var(--muted);margin:0}
+.toast{white-space:nowrap;position:fixed;left:50%;bottom:20px;transform:translate(-50%,160%);background:var(--ink);color:var(--panel);border-radius:999px;padding:8px 8px 8px 20px;display:flex;gap:12px;align-items:center;font-weight:500;transition:transform .25s;max-width:calc(100vw - 32px);z-index:5}
+.toast.on{transform:translate(-50%,0)}
+.toast button{background:var(--gold);color:#2a1604;border:0;border-radius:999px;min-height:40px;padding:0 16px;font:700 15px Rubik,sans-serif;cursor:pointer;flex:none}
+@media(max-width:700px){.cols{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:420px){.days{gap:4px}.day{border-radius:10px;padding:8px 2px}.dots i{width:16px;height:7px}.ds{font-size:12px}.wk{grid-template-columns:minmax(0,7.5em) minmax(0,1fr) auto}.mugw{inset:0 22%}.side{font-size:13px;width:21%}.side b{font-size:22px}.stamp{font-size:15px}}
+@media(prefers-reduced-motion:reduce){.toast{transition:none}}
+</style></head><body><div id="shell">
+<section class="band top"><div class="wrap">
+<h1>Пивная копилка</h1>
+<p class="sub">Захотелось пива? Смахни кружку влево, если сдержалась, и вправо, если выпила.</p>
+<div class="hero">
+<p class="sub" id="range">Эта неделя</p>
+<div class="big" id="total">0 €</div>
+<p class="cnt" id="count">Пока пусто — первая монетка ждёт.</p>
+<div class="stage" id="stage" tabindex="0" role="group" aria-label="Кружка-копилка: смахни влево — сдержалась, вправо — выпила. Можно стрелками.">
+<span class="side s"><b>←</b>сдержалась</span><span class="side d"><b>→</b>выпила</span>
+<span class="stamp s" id="stampS">+3 €</span><span class="stamp d">Выпила</span>
+<div class="mugw" id="mugw"><svg id="mug" viewBox="0 0 250 290" role="img" aria-label="Кружка с монетками за эту неделю">
+<defs><clipPath id="inside"><path d="M38 36 L184 36 L173 256 Q172 266 162 266 L60 266 Q50 266 49 256 Z"/></clipPath>
+<linearGradient id="hl" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity=".7"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>
+<ellipse cx="112" cy="279" rx="92" ry="8" fill="#000" opacity=".14"/>
+<path d="M187 80 C236 80 240 100 240 142 C240 188 230 208 182 208" fill="none" stroke="var(--ink)" stroke-width="18" stroke-linecap="butt"/>
+<path d="M187 80 C236 80 240 100 240 142 C240 188 230 208 182 208" fill="none" stroke="var(--bg)" stroke-width="7" stroke-linecap="butt" opacity=".9"/>
+<path d="M30 28 L192 28 L180 258 Q178 274 162 274 L60 274 Q44 274 42 258 Z" fill="var(--glass)"/>
+<g clip-path="url(#inside)" id="coins"></g>
+<g id="fall"></g>
+<path d="M30 28 L192 28 L180 258 Q178 274 162 274 L60 274 Q44 274 42 258 Z" fill="none" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round"/>
+<path d="M50 48 L58 236 L70 236 L64 48 Z" fill="url(#hl)" opacity=".55"/>
+<path d="M26 28 L196 28" stroke="var(--ink)" stroke-width="8" stroke-linecap="round"/>
+</svg></div></div>
+<div class="btns"><button class="btn s" id="bS" type="button">← Сдержалась</button><button class="btn d" id="bD" type="button">Выпила →</button></div>
+<button class="lnk" id="undo" type="button">Отменить последнюю отметку</button>
+<p class="note" id="msg"></p>
+</div></div></section>
+<section class="band"><div class="wrap">
+<h2>По дням</h2>
+<div class="days" id="days"></div>
+<div class="legend"><span><i></i>сдержалась</span><span><u></u>выпила</span></div>
+<div class="cols">
+<div><h2>Прошлые недели</h2><div id="hist"></div></div>
+<div><h2>Всего</h2><div id="stats"></div>
+<label for="coinIn">Цена одной монетки, €</label>
+<input id="coinIn" type="number" min="0.5" step="0.5" inputmode="decimal" value="3">
+<p class="note">Новая цена действует для следующих монеток.</p></div>
+</div></div></section>
+<div class="toast" id="toast" role="status"><span id="toastTx">+3 € в копилку</span><button id="toastUndo" type="button">Отменить</button></div>
+</div><script type="application/json" id="state">{"coin":3,"ev":[],"saved":0}</script><script id="app">
+{
+const $=s=>document.querySelector(s);
+const SHELL=$('#shell').innerHTML,CSS=$('#css').textContent,APP=$('#app').textContent;
+const DAY=864e5,LS='beer-bank-v2',CAP=55;
+const MON=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+const DN=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+const clean=o=>({coin:+(o&&o.coin)||3,ev:Array.isArray(o&&o.ev)?o.ev:[],saved:+(o&&o.saved)||0});
+let S;try{S=clean(JSON.parse($('#state').textContent))}catch(e){S=clean(null)}
+let lsOK=true,dirty=false,cap=null,readOnly=false,timer=null,busy=false;
+function lsGet(){try{return JSON.parse(localStorage.getItem(LS)||'null')}catch(e){lsOK=false;return null}}
+function lsSet(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){lsOK=false}}
+const L=lsGet();if(L&&(+L.saved||0)>S.saved){S=clean(L);dirty=true}
+const nf=new Intl.NumberFormat('ru-RU',{maximumFractionDigits:2});
+const eur=n=>nf.format(n)+' €';
+const plural=(n,f)=>{const a=n%10,b=n%100;return f[a===1&&b!==11?0:a>=2&&a<=4&&(b<10||b>=20)?1:2]};
+const times=n=>n+' '+plural(n,['раз','раза','раз']);
+function wStart(t){const d=new Date(t);return new Date(d.getFullYear(),d.getMonth(),d.getDate()-(d.getDay()+6)%7).getTime()}
+function addDays(t,n){const d=new Date(t);return new Date(d.getFullYear(),d.getMonth(),d.getDate()+n).getTime()}
+function range(ws){const a=new Date(ws),b=new Date(addDays(ws,6));return a.getMonth()===b.getMonth()?`${a.getDate()}–${b.getDate()} ${MON[b.getMonth()]}`:`${a.getDate()} ${MON[a.getMonth()]} – ${b.getDate()} ${MON[b.getMonth()]}`}
+function slot(i){const p=Math.floor(i/5),r=i%5,odd=r>=3,l=p*2+(odd?1:0);const xs=odd?[91,131]:[71,111,151];return{x:xs[odd?r-3:r]+((i*37)%7)-3,y:254-l*9.6}}
+const coinSVG='<ellipse cy="3.5" rx="17" ry="7" fill="#b9780a"/><ellipse rx="17" ry="7" fill="#f6bd2a"/><ellipse rx="11" ry="4.2" fill="none" stroke="#d99a12" stroke-width="1.6"/><ellipse cx="-6" cy="-2" rx="4" ry="1.4" fill="#fff3b0" opacity=".85"/>';
+const saves=a=>a.filter(e=>e[1]==='s'),drinks=a=>a.filter(e=>e[1]==='d');
+const sum=a=>saves(a).reduce((s,e)=>s+(+e[2]||0),0);
+const inR=(a,s,e)=>a.filter(x=>x[0]>=s&&x[0]<e);
+const reduced=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
+function render(drop){
+  const now=Date.now(),ws=wStart(now),wk=inR(S.ev,ws,addDays(ws,7)),ns=saves(wk).length,nd=drinks(wk).length,total=sum(wk);
+  $('#range').textContent='Неделя '+range(ws);
+  $('#total').textContent=eur(total);
+  $('#count').textContent=ns||nd?`Сдержалась ${times(ns)}${nd?', выпила '+times(nd):''} на этой неделе.`:'Пока пусто — первая монетка ждёт.';
+  $('#stampS').textContent='+'+eur(S.coin);
+  $('#undo').disabled=!S.ev.length;
+  const shown=Math.min(ns,CAP);let g='';
+  for(let i=0;i<shown;i++){const s=slot(i);g+=`<g transform="translate(${s.x} ${s.y})"${drop&&i===shown-1?' id="last" opacity="0"':''}>${coinSVG}</g>`}
+  $('#coins').innerHTML=g;
+  const today=(new Date(now).getDay()+6)%7;
+  $('#msg').textContent=today===6&&ns?`Сегодня воскресенье — неделя закрывается с итогом ${eur(total)}.`:(!cap&&!lsOK?'Похоже, здесь данные не сохраняются — открой копилку по ссылке на claude.ai.':readOnly?'Эта копилка открыта только для просмотра.':'');
+  $('#days').innerHTML=DN.map((d,i)=>{const de=inR(S.ev,addDays(ws,i),addDays(ws,i+1)),k=saves(de).length,b=drinks(de).length;
+    const dots=k>7?'<i></i>'.repeat(6)+`<s>+${k-6}</s>`:'<i></i>'.repeat(k);
+    const beers=b>4?'<u></u>'.repeat(3)+`<s>+${b-3}</s>`:'<u></u>'.repeat(b);
+    return `<div class="day${i===today?' today':''}${i>today?' fut':''}"><span class="dl">${d}</span><span class="dd">${new Date(addDays(ws,i)).getDate()}</span><span class="dots">${dots}</span><span class="beers">${beers}</span><span class="ds">${k?eur(sum(de)):'—'}</span></div>`}).join('');
+  const by={};for(const e of S.ev){const k=wStart(e[0]);(by[k]=by[k]||[]).push(e)}
+  const past=Object.keys(by).map(Number).filter(k=>k<ws).sort((a,b)=>b-a);
+  const best=Math.max(total,...past.map(k=>sum(by[k])),0);
+  $('#hist').innerHTML=past.length?past.slice(0,10).map(k=>{const v=sum(by[k]),a=saves(by[k]).length,b=drinks(by[k]).length;return `<div class="wk"><span>${range(k)}<small>сдержалась ${times(a)} · выпила ${times(b)}</small></span><span class="bar"><i style="width:${best?v/best*100:0}%"></i></span><span>${eur(v)}</span></div>`}).join(''):'<p class="empty">Здесь появятся итоги прошлых недель — первая закроется в воскресенье.</p>';
+  const all=sum(S.ev),as=saves(S.ev).length,ad=drinks(S.ev).length;
+  const first=S.ev.length?wStart(Math.min(...S.ev.map(e=>e[0]))):ws,weeks=Math.max(1,Math.round((ws-first)/(7*DAY))+1);
+  $('#stats').innerHTML=[['Сэкономлено за всё время',eur(all)],['Сдержалась',times(as)],['Выпила',times(ad)],['Сдерживаюсь в',as+ad?Math.round(as/(as+ad)*100)+'% случаев':'—'],['Лучшая неделя',eur(best)],['В таком темпе за год',as?'≈ '+eur(Math.round(all/weeks*52)):'—']].map(r=>`<div class="stat"><span>${r[0]}</span><b>${r[1]}</b></div>`).join('');
+  if(document.activeElement!==$('#coinIn'))$('#coinIn').value=S.coin;
+  if(drop){const last=$('#last');if(!last)return;const s=slot(shown-1);
+    if(reduced()||!$('#fall').animate){last.removeAttribute('opacity');return}
+    const f=document.createElementNS('http://www.w3.org/2000/svg','g');f.innerHTML=coinSVG;$('#fall').appendChild(f);
+    const tr=y=>`translate(${s.x}px,${y}px)`;
+    const a=f.animate([{transform:tr(-50)},{transform:tr(s.y),offset:.72,easing:'ease-out'},{transform:tr(s.y-10),offset:.86,easing:'ease-in'},{transform:tr(s.y)}],{duration:760,easing:'cubic-bezier(.55,0,1,.45)'});
+    a.onfinish=()=>{f.remove();last.removeAttribute('opacity')}}
+}
+function buildHTML(){const json=JSON.stringify(S).replace(/</g,'\\u003c');
+  return '<!DOCTYPE html>\n<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Пивная копилка</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&family=Unbounded:wght@600;800&display=swap" rel="stylesheet"><style id="css">'+CSS+'</style></head><body><div id="shell">'+SHELL+'</div><script type="application/json" id="state">'+json+'<\/script><script id="app">'+APP+'<\/script></body></html>'}
+async function flush(){clearTimeout(timer);if(!cap||!dirty||readOnly)return;dirty=false;
+  try{await cap.publish(buildHTML())}catch(e){const c=String(e&&(e.code||e.message||e));if(/not_granted|not_writer/.test(c)){readOnly=true;render()}}}
+function save(){S.saved=Date.now();lsSet();dirty=true;clearTimeout(timer);timer=setTimeout(flush,1800)}
+let toastT;
+function toast(t){$('#toastTx').textContent=t;$('#toast').classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>$('#toast').classList.remove('on'),4000)}
+function act(kind){
+  S.ev.push(kind==='s'?[Date.now(),'s',S.coin]:[Date.now(),'d']);save();render(kind==='s');
+  try{navigator.vibrate&&navigator.vibrate(kind==='s'?[20,40,20]:15)}catch(e){}
+  toast(kind==='s'?'+'+eur(S.coin)+' в копилку!':'Отметила «выпила»')}
+function undo(){if(!S.ev.length)return;const e=S.ev.pop();save();render();toast(e[1]==='s'?'Убрала '+eur(+e[2]||0):'Убрала отметку «выпила»')}
+const card=$('#stage'),mw=$('#mugw');
+function pose(dx){const c=Math.max(-140,Math.min(140,dx));mw.style.transform=`translateX(${c*.6}px) rotate(${c/7}deg)`;card.style.setProperty('--l',Math.min(1,Math.max(0,-dx)/80));card.style.setProperty('--r',Math.min(1,Math.max(0,dx)/80))}
+function back(){mw.style.transition='transform .45s cubic-bezier(.2,1.6,.4,1)';pose(0)}
+function commit(kind){if(busy)return;busy=true;const dir=kind==='s'?-1:1;
+  if(reduced()){act(kind);pose(0);busy=false;return}
+  mw.style.transition='transform .18s ease-out';pose(dir*130);
+  setTimeout(()=>{back();setTimeout(()=>{act(kind);busy=false},140)},200)}
+let sx=0,sy=0,dx=0,st=0,drag=false,pid=null;
+card.addEventListener('pointerdown',e=>{if(busy)return;drag=true;pid=e.pointerId;sx=e.clientX;sy=e.clientY;dx=0;st=performance.now();mw.style.transition='none';try{card.setPointerCapture(pid)}catch(_){}});
+card.addEventListener('pointermove',e=>{if(!drag||e.pointerId!==pid)return;dx=e.clientX-sx;if(Math.abs(e.clientY-sy)>40&&Math.abs(dx)<20){drag=false;back();return}pose(dx)});
+function end(e){if(!drag||(e&&e.pointerId!==pid))return;drag=false;const v=dx/Math.max(1,performance.now()-st);
+  if(dx<-90||(v<-.6&&dx<-30))commit('s');else if(dx>90||(v>.6&&dx>30))commit('d');else back()}
+card.addEventListener('pointerup',end);card.addEventListener('pointercancel',()=>{drag=false;back()});
+card.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'){e.preventDefault();commit('s')}else if(e.key==='ArrowRight'){e.preventDefault();commit('d')}});
+$('#bS').addEventListener('click',()=>commit('s'));
+$('#bD').addEventListener('click',()=>commit('d'));
+$('#undo').addEventListener('click',undo);
+$('#toastUndo').addEventListener('click',()=>{$('#toast').classList.remove('on');undo()});
+$('#coinIn').addEventListener('change',e=>{const v=Math.round(parseFloat(String(e.target.value).replace(',','.'))*100)/100;if(v>0&&v<1000){S.coin=v;save()}render()});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')flush()});
+setInterval(()=>{if(!drag&&!busy)render()},60000);
+render();
+if(window.claude&&typeof window.claude.use==='function'){window.claude.use('artifact').then(a=>{cap=a;if(dirty)flush();render()}).catch(()=>{})}
+}
+</script></body></html>
